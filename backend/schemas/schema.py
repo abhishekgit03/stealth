@@ -78,6 +78,13 @@ class TranscriptionSegment(BaseModel):
 class VisitUpdate(BaseModel):
     transcript: Dict[str, str]
 
+class VisitNotesUpdate(BaseModel):
+    subjective: Optional[str] = None
+    vitals: Optional[SoapVitals] = None
+    objective: Optional[str] = None
+    assessment: Optional[List[str]] = None
+    plan: Optional[List[str]] = None
+
 class VisitListItem(BaseModel):
     id: str
     date: datetime
@@ -105,3 +112,18 @@ class PatientListItem(BaseModel):
 
     class Config:
         orm_mode = True
+
+class MatchConfidence(str, Enum):
+    high   = "high"
+    medium = "medium"
+    low    = "low"
+ 
+class ICDSuggestion(BaseModel):
+    icd_code:         str = Field(..., description="ICD-10 code (e.g. 'J44.1')")
+    disease_name:     str = Field(..., description="Full description of the diagnosis")
+    reason:           str = Field(..., description="Clinical justification from the SOAP note")
+    match_confidence: MatchConfidence = Field(..., description="Confidence level: high | medium | low")
+ 
+class ICD10Response(BaseModel):
+    visit_id:        str                = Field(...)
+    icd_suggestions: List[ICDSuggestion] = Field(...)
